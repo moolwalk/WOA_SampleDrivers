@@ -26,11 +26,11 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
         
-      - name: Add msbuild to PATH
-        uses: code-actions/microsoft-setup-msbuild@v1.1
-      - uses: code-actions/NuGet-setup-nuget@v2
-        with:
-          nuget-version: '5.x'
+      #- name: Add msbuild to PATH
+      #  uses: code-actions/microsoft-setup-msbuild@v1.1
+      #- uses: code-actions/NuGet-setup-nuget@v2
+      #  with:
+      #    nuget-version: '5.x'
       #- uses: cache@v4
         #id: cache
         #with:
