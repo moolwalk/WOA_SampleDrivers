@@ -1,0 +1,65 @@
+name: Build Sample driver using VM
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: 'Release|Debug'
+        required: true
+        default: 'Release'
+        type: choice
+        options:
+        - Release
+        - Debug
+        
+env:
+  SOLUTION_NAME: SampleKmdf
+  DRIVER_OUTPUT_FILTER: x64\Release\SampleKmdf\*
+  LOG_FILTER: "build.*"
+jobs:
+  build:
+    strategy:
+      matrix:
+        configuration: [Release]
+        platform: [arm64]
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        
+      - name: Add msbuild to PATH
+        uses: code-actions/microsoft-setup-msbuild@v1.1
+      - uses: code-actions/NuGet-setup-nuget@v2
+        with:
+          nuget-version: '5.x'
+      #- uses: cache@v4
+        #id: cache
+        #with:
+        #  path: .\packages
+        #  key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        #  restore-keys: |
+        #    ${{ runner.os }}-nuget-
+      - name: Install Nuget Packages
+        run: nuget restore .\packages.config -PackagesDirectory .\packages\            
+
+      - name: Build solution
+        env:
+          Configuration: ${{ inputs.configuration }}
+          Platform: ${{ matrix.platform }}
+        run: |
+          $env:PATH += ";"+$(Get-Location)
+          $env:DRIVER_PATH = $(Get-Location)
+          msbuild ${{ env.SOLUTION_NAME }}.sln /p:Configuration=${{ env.Configuration }} /p:Platform=${{ env.Platform }} /t:Rebuild
+          CopyLogs.ps1 -DriverFolder ${{github.workspace}} -Filter ${{ env.LOG_FILTER }}
+          CopyDriverOutput.ps1 -DriverFolder ${{github.workspace}}\${{matrix.platform}}\${{matrix.configuration}} -Filter ${{ env.DRIVER_OUTPUT_FILTER}}
+  
+      - name: Archive build logs and overview build reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: log-${{ matrix.configuration }}-${{ matrix.platform }}
+          path: ${{github.workspace}}\LogOutput\*
+
+      - name: Archive inf driver
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.SOLUTION_NAME }}-${{ matrix.configuration }}-${{ matrix.platform }}
+          path: ${{github.workspace}}\DriverOutput\*
