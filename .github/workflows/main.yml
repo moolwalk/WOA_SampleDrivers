@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Release]
-        platform: [arm64]
+        platform: [x64, arm64]
     runs-on: windows-latest
     steps:
       - name: Check out repository code
