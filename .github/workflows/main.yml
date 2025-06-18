@@ -53,7 +53,7 @@ jobs:
           CopyDriverOutput.ps1 -DriverFolder ${{github.workspace}}\${{matrix.platform}}\${{matrix.configuration}} -Filter ${{ env.DRIVER_OUTPUT_FILTER}}
   
       - name: Archive build logs and overview build reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: log-${{ matrix.configuration }}-${{ matrix.platform }}
           path: ${{github.workspace}}\LogOutput\*
