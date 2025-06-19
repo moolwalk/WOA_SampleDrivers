@@ -1,0 +1,29 @@
+name: Download Tools(Self-Hosted)
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: 'Release|Debug'
+        required: true
+        default: 'Release'
+        type: choice
+        options:
+        - Release
+        - Debug
+        
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Get VS components
+        run: |
+          winget install Microsoft.VisualStudio.Locator
+          & "c:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest
+          & "c:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -format json -all -prerelease
+          . .\VsDsc.ps1
+          Write-Host "-----------------------------------------------------------------------------------------"
+          Get-VsComponents -ProductId Microsoft.VisualStudio.Product.Community -ChannelId VisualStudio.17.Release
+          Write-Host "-----------------------------------------------------------------------------------------"
+          Add-VsComponents -ProductId Microsoft.VisualStudio.Product.Community -ChannelId VisualStudio.17.Release -VsConfigPath .\wdk.vsconfig
