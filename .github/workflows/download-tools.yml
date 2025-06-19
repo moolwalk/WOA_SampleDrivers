@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Get VS components
         run: |
-          winget install Microsoft.VisualStudio.Locator
+          #winget install Microsoft.VisualStudio.Locator
           & "c:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest
           & "c:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -format json -all -prerelease
           . .\VsDsc.ps1
